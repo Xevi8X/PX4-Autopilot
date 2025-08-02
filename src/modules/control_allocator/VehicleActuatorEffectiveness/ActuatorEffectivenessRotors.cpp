@@ -169,6 +169,10 @@ ActuatorEffectivenessRotors::computeEffectivenessMatrix(const Geometry &geometry
 			continue;
 		}
 
+		if (geometry.rotors[i].tilt_index >= 0) {
+			axis = geometry.rotation[geometry.rotors[i].tilt_index] * axis;
+		}
+
 		// Get rotor position
 		const Vector3f &position = geometry.rotors[i].position;
 
@@ -295,6 +299,11 @@ uint32_t ActuatorEffectivenessRotors::getForwardsMotors() const
 	}
 
 	return forward_motors;
+}
+
+void ActuatorEffectivenessRotors::setRotation(int index, const matrix::Matrix3f & rotation)
+{
+	_geometry.rotation[index] = rotation;
 }
 
 bool

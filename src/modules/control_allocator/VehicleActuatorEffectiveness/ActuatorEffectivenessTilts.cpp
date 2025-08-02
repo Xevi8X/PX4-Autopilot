@@ -94,7 +94,7 @@ bool ActuatorEffectivenessTilts::addActuators(Configuration &configuration)
 }
 
 void ActuatorEffectivenessTilts::updateTorqueSign(const ActuatorEffectivenessRotors::Geometry &geometry,
-		bool disable_pitch)
+		bool disable_pitch, float tilt_setpoint[MAX_COUNT])
 {
 	for (int i = 0; i < geometry.num_rotors; ++i) {
 		int tilt_index = geometry.rotors[i].tilt_index;
@@ -103,34 +103,33 @@ void ActuatorEffectivenessTilts::updateTorqueSign(const ActuatorEffectivenessRot
 			continue;
 		}
 
-		if (_params[tilt_index].control == Control::Yaw || _params[tilt_index].control == Control::YawAndPitch) {
+		const matrix::Vector3f tilt_axis = get_tilt_axis(tilt_index);
+		auto unit_torque = geometry.rotors[i].position.cross(geometry.rotors[i].axis);
 
-			// Find the yaw torque sign by checking the motor position and tilt direction.
-			// Rotate position by -tilt_direction around z, then check the sign of y pos
-			float tilt_direction = math::radians((float)_params[tilt_index].tilt_direction);
-			Vector3f rotated_pos = Dcmf{Eulerf{0.f, 0.f, -tilt_direction}} * geometry.rotors[i].position;
-
-			if (rotated_pos(1) < -0.01f) { // add minimal margin
-				_torque[tilt_index](2) = 1.f;
-
-			} else if (rotated_pos(1) > 0.01f) {
-				_torque[tilt_index](2) = -1.f;
-			}
+		if (tilt_setpoint) {
+			unit_torque = geometry.rotors[i].position.cross(
+			cosf(tilt_setpoint[tilt_index]) * tilt_axis.cross(geometry.rotors[i].axis) +
+			sinf(tilt_setpoint[tilt_index]) * tilt_axis.cross(tilt_axis.cross(geometry.rotors[i].axis)));
 		}
 
-		if (!disable_pitch && (_params[tilt_index].control == Control::Pitch
-				       || _params[tilt_index].control == Control::YawAndPitch)) {
-			bool tilting_forwards = (int)_params[tilt_index].tilt_direction < 90 || (int)_params[tilt_index].tilt_direction > 270;
-			_torque[tilt_index](1) = tilting_forwards ? -1.f : 1.f;
+		if (_params[tilt_index].control & Control::Roll) {
+			_torque[tilt_index](0) = unit_torque(0);
 		}
 
+		if (!disable_pitch && _params[tilt_index].control & Control::Pitch) {
+			_torque[tilt_index](1) = unit_torque(1);
+		}
+
+		if (_params[tilt_index].control & Control::Yaw) {
+			_torque[tilt_index](2) = unit_torque(2);
+		}
 	}
 }
 
 bool ActuatorEffectivenessTilts::hasYawControl() const
 {
 	for (int i = 0; i < _count; i++) {
-		if (_params[i].control == Control::Yaw || _params[i].control == Control::YawAndPitch) {
+		if (_params[i].control & Control::Yaw) {
 			return true;
 		}
 	}

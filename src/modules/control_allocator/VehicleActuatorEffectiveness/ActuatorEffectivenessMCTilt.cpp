@@ -40,6 +40,12 @@ ActuatorEffectivenessMCTilt::ActuatorEffectivenessMCTilt(ModuleParams *parent)
 	  _mc_rotors(this, ActuatorEffectivenessRotors::AxisConfiguration::FixedUpwards, true),
 	  _tilts(this)
 {
+	static_assert(ActuatorEffectivenessTilts::MAX_COUNT == sizeof(_tilt_setpoint.tilt_setpoint) / sizeof(_tilt_setpoint.tilt_setpoint[0]),
+		      "Tilt setpoint size does not match MAX_COUNT");
+
+	for (int i = 0; i < ActuatorEffectivenessTilts::MAX_COUNT; ++i) {
+		_tilt_setpoint.tilt_setpoint[i] = 0.0f;
+	}
 }
 
 bool
@@ -51,12 +57,18 @@ ActuatorEffectivenessMCTilt::getEffectivenessMatrix(Configuration &configuration
 	}
 
 	// MC motors
-	_mc_rotors.enableYawByDifferentialThrust(!_tilts.hasYawControl());
+	_mc_rotors.enableYawByDifferentialThrust(true);
+
+	for (int i = 0; i < ActuatorEffectivenessTilts::MAX_COUNT; ++i) {
+		auto tilt_axis = _tilts.get_tilt_axis(i);
+		_mc_rotors.setRotation(i, matrix::Dcmf(AxisAnglef(tilt_axis, _tilt_setpoint.tilt_setpoint[i])));
+	}
+
 	const bool rotors_added_successfully = _mc_rotors.addActuators(configuration);
 
 	// Tilts
 	_first_tilt_idx = configuration.num_actuators_matrix[0];
-	_tilts.updateTorqueSign(_mc_rotors.geometry());
+	_tilts.updateTorqueSign(_mc_rotors.geometry(), true, _tilt_setpoint.tilt_setpoint);
 	const bool tilts_added_successfully = _tilts.addActuators(configuration);
 
 	// Set offset such that tilts point upwards when control input == 0 (trim is 0 if min_angle == -max_angle).
@@ -65,11 +77,13 @@ ActuatorEffectivenessMCTilt::getEffectivenessMatrix(Configuration &configuration
 	_tilt_offsets.setZero();
 
 	for (int i = 0; i < _tilts.count(); ++i) {
+
 		float delta_angle = _tilts.config(i).max_angle - _tilts.config(i).min_angle;
+		float setpoint_angle = math::degrees(_tilt_setpoint.tilt_setpoint[i]);
 
 		if (delta_angle > FLT_EPSILON) {
-			float trim = -1.f - 2.f * _tilts.config(i).min_angle / delta_angle;
-			_tilt_offsets(_first_tilt_idx + i) = trim;
+			float trim = -1.f - 2.f * (_tilts.config(i).min_angle - setpoint_angle) / delta_angle;
+			_tilt_offsets(_first_tilt_idx + i) = math::constrain(trim, -1.f, 1.f);
 		}
 	}
 

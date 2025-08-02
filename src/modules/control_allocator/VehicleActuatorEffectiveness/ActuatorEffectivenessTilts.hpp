@@ -44,12 +44,11 @@ public:
 
 	static constexpr int MAX_COUNT = 4;
 
-	enum class Control : int32_t {
+	enum Control : int32_t {
 		// This matches with the parameter
-		None = 0,
-		Yaw = 1,
+		Roll = 1,
 		Pitch = 2,
-		YawAndPitch = 3,
+		Yaw = 4,
 	};
 	enum class TiltDirection : int32_t {
 		// This matches with the parameter
@@ -58,7 +57,7 @@ public:
 	};
 
 	struct Params {
-		Control control;
+		int32_t control;
 		float min_angle;
 		float max_angle;
 		TiltDirection tilt_direction;
@@ -75,11 +74,22 @@ public:
 
 	const Params &config(int idx) const { return _params[idx]; }
 
-	void updateTorqueSign(const ActuatorEffectivenessRotors::Geometry &geometry, bool disable_pitch = false);
+	void updateTorqueSign(const ActuatorEffectivenessRotors::Geometry &geometry, bool disable_pitch = false,
+		float tilt_setpoint[MAX_COUNT] = nullptr);
 
 	bool hasYawControl() const;
 
 	float getYawTorqueOfTilt(int tilt_index) const { return _torque[tilt_index](2); }
+
+	matrix::Vector3f get_tilt_axis(int tilt_index) const
+	{
+		if (tilt_index < 0 || tilt_index >= MAX_COUNT) {
+			return matrix::Vector3f(0.0f, 0.0f, 0.0f);
+		}
+
+		float tilt_direction = math::radians((float)_params[tilt_index].tilt_direction);
+		return matrix::Vector3f{sinf(tilt_direction), -cosf(tilt_direction), 0.f};
+	}
 
 private:
 	void updateParams() override;

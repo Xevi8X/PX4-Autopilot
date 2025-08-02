@@ -72,6 +72,7 @@ public:
 
 	struct Geometry {
 		RotorGeometry rotors[NUM_ROTORS_MAX];
+		matrix::Matrix3f rotation[4] = {matrix::eye<float, 3>()};
 		int num_rotors{0};
 		bool propeller_torque_disabled{false};
 		bool yaw_by_differential_thrust_disabled{false};
@@ -129,6 +130,8 @@ public:
 	uint32_t getMotors() const;
 	uint32_t getUpwardsMotors() const;
 	uint32_t getForwardsMotors() const;
+
+	void setRotation(int index, const matrix::Matrix3f &rotation);
 
 private:
 	void updateParams() override;

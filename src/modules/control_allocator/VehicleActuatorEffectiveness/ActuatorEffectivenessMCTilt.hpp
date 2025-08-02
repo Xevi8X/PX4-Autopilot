@@ -37,6 +37,9 @@
 #include "ActuatorEffectivenessRotors.hpp"
 #include "ActuatorEffectivenessTilts.hpp"
 
+#include <uORB/Subscription.hpp>
+#include <uORB/topics/tilt_setpoint.h>
+
 class ActuatorEffectivenessMCTilt : public ModuleParams, public ActuatorEffectiveness
 {
 public:
@@ -74,4 +77,6 @@ protected:
 	};
 
 	YawTiltSaturationFlags _yaw_tilt_saturation_flags{};
+
+	tilt_setpoint_s _tilt_setpoint{};
 };
