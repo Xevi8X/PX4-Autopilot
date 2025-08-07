@@ -34,7 +34,8 @@
 #pragma once
 
 #include "control_allocation/actuator_effectiveness/ActuatorEffectiveness.hpp"
-#include "ActuatorEffectivenessRotors.hpp"
+#include <px4_platform_common/module_params.h>
+#include <lib/mathlib/mathlib.h>
 
 class ActuatorEffectivenessDevel : public ModuleParams, public ActuatorEffectiveness
 {

@@ -50,10 +50,10 @@ bool ActuatorEffectivenessDevel::getEffectivenessMatrix(Configuration & configur
 	// 2 - Tail rotor, tilted laterally
 	int servo_count = 2;
 
-	effectiveness_matrix.slice<3, 1>(0, 3) = motor_positions[0].cross(tilted_forward_axis.cross(tilted_forward_axis)); // servo 0 moment
+	effectiveness_matrix.slice<3, 1>(0, 3) = motor_positions[0].cross(_tilt_axis.cross(tilted_forward_axis)); // servo 0 moment
 	effectiveness_matrix.slice<3, 1>(3, 3) = matrix::Vector3f(0.0f, 0.0f, 0.0f); // servo 0 thrust
 
-	effectiveness_matrix.slice<3, 1>(0, 4) = motor_positions[1].cross(tilted_forward_axis.cross(tilted_forward_axis)); // servo 1 moment
+	effectiveness_matrix.slice<3, 1>(0, 4) = motor_positions[1].cross(_tilt_axis.cross(tilted_forward_axis)); // servo 1 moment
 	effectiveness_matrix.slice<3, 1>(3, 4) = matrix::Vector3f(0.0f, 0.0f, 0.0f); // servo 1 thrust
 
 	// effectiveness_matrix.slice<3, 1>(0, 5) = matrix::Vector3f(0.0f, 0.0f, 1.0f); // servo 2 moment
