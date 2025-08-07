@@ -61,7 +61,7 @@ public:
 	const char *name() const override { return "Devel"; }
 
 private:
-	float _tilt_base{math::radians(0.0f)}; ///< base position of the front rotors, 0 - directly up, pi/2 - directly forward
+	float _tilt_base{math::radians(15.0f)}; ///< base position of the front rotors, 0 - directly up, pi/2 - directly forward
 	matrix::Vector3f _tilt_axis{0.0f, -1.0f, 0.0f}; ///< axis of front rotors tilt
 
 	static constexpr float _min_tilt_angle{math::radians(-10.0f)}; ///< minimum tilt angle for the front rotors, in radians

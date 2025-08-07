@@ -9,8 +9,8 @@ bool ActuatorEffectivenessDevel::getEffectivenessMatrix(Configuration & configur
 {
 	// TODO: load parameters from parameters
 
-	float ct = 0.1f; // thrust coefficient, T = ct * omega^2
-	float cm = 0.001f; // moment coefficient, M = cm * omega^2
+	float ct = 5.0f; // thrust coefficient, T = ct * omega^2
+	float cm = 0.1f; // moment coefficient, M = cm * omega^2
 	auto up_axis = matrix::Vector3f(0.0f, 0.0f, -1.0f); // up axis of the vehicle
 	matrix::Vector3f tilted_forward_axis = matrix::Dcmf(matrix::AxisAnglef(_tilt_axis, _tilt_base)) * up_axis; // forward axis of the front rotors, tilted by the tilt angle
 
