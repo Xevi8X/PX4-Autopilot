@@ -11,7 +11,7 @@ bool ActuatorEffectivenessDevel::getEffectivenessMatrix(Configuration & configur
 
 	if (_tilt_forward_sub.update()) {
 		const tilt_forward_s &tilt_forward = _tilt_forward_sub.get();
-		float tilt_base_candidate = tilt_forward.tilt_base > 0.0f ? tilt_forward.tilt_base * _max_tilt_angle : tilt_forward.tilt_base * _min_tilt_angle;
+		float tilt_base_candidate = tilt_forward.tilt_base > 0.0f ? tilt_forward.tilt_base * _max_tilt_angle : -tilt_forward.tilt_base * _min_tilt_angle;
 
 		if (fabsf(tilt_base_candidate - _tilt_base) > _tilt_base_deadzone) {
 			_tilt_base = tilt_base_candidate; // update the tilt base angle

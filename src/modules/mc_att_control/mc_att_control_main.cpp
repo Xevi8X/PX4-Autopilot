@@ -200,6 +200,13 @@ MulticopterAttitudeControl::generate_attitude_setpoint(const Quatf &q, float dt)
 
 	attitude_setpoint.timestamp = hrt_absolute_time();
 	_vehicle_attitude_setpoint_pub.publish(attitude_setpoint);
+
+	tilt_forward_s tilt_forward{
+		.timestamp = hrt_absolute_time(),
+		.tilt_base = _manual_control_setpoint.flaps
+	};
+
+	_tilt_forward_pub.publish(tilt_forward);
 }
 
 void
