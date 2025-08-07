@@ -265,6 +265,8 @@ void LoggedTopics::add_default_topics()
 #ifdef CONFIG_BOARD_UAVCAN_INTERFACES
 	add_topic_multi("can_interface_status", 100, CONFIG_BOARD_UAVCAN_INTERFACES);
 #endif
+
+	add_topic("tilt_forward", 0);
 }
 
 void LoggedTopics::add_high_rate_topics()

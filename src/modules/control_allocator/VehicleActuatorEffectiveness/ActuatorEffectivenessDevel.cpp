@@ -7,10 +7,27 @@ ActuatorEffectivenessDevel::ActuatorEffectivenessDevel(ModuleParams * parent)
 
 bool ActuatorEffectivenessDevel::getEffectivenessMatrix(Configuration & configuration, EffectivenessUpdateReason external_update)
 {
+	bool should_update = external_update != EffectivenessUpdateReason::NO_EXTERNAL_UPDATE;
+
+	if (_tilt_forward_sub.update()) {
+		const tilt_forward_s &tilt_forward = _tilt_forward_sub.get();
+		float tilt_base_candidate = tilt_forward.tilt_base > 0.0f ? tilt_forward.tilt_base * _max_tilt_angle : tilt_forward.tilt_base * _min_tilt_angle;
+
+		if (fabsf(tilt_base_candidate - _tilt_base) > _tilt_base_deadzone) {
+			_tilt_base = tilt_base_candidate; // update the tilt base angle
+			PX4_INFO("Tilt base updated to: %.2f rad", (double)_tilt_base);
+			should_update = true;
+		}
+	}
+
+	if (!should_update) {
+		return false; // no update needed
+	}
+
 	// TODO: load parameters from parameters
 
 	float ct = 5.0f; // thrust coefficient, T = ct * omega^2
-	float cm = 0.1f; // moment coefficient, M = cm * omega^2
+	float cm = 0.0f; // moment coefficient, M = cm * omega^2
 	auto up_axis = matrix::Vector3f(0.0f, 0.0f, -1.0f); // up axis of the vehicle
 	matrix::Vector3f tilted_forward_axis = matrix::Dcmf(matrix::AxisAnglef(_tilt_axis, _tilt_base)) * up_axis; // forward axis of the front rotors, tilted by the tilt angle
 

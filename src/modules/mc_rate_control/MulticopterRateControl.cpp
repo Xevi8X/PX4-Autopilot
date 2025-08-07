@@ -174,6 +174,13 @@ MulticopterRateControl::Run()
 				vehicle_rates_setpoint.timestamp = hrt_absolute_time();
 
 				_vehicle_rates_setpoint_pub.publish(vehicle_rates_setpoint);
+
+				tilt_forward_s tilt_forward{
+					.timestamp = hrt_absolute_time(),
+					.tilt_base = manual_control_setpoint.flaps
+				};
+
+				_tilt_forward_pub.publish(tilt_forward);
 			}
 
 		} else if (_vehicle_rates_setpoint_sub.update(&vehicle_rates_setpoint)) {

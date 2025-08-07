@@ -37,6 +37,9 @@
 #include <px4_platform_common/module_params.h>
 #include <lib/mathlib/mathlib.h>
 
+#include <uORB/Subscription.hpp>
+#include <uORB/topics/tilt_forward.h>
+
 class ActuatorEffectivenessDevel : public ModuleParams, public ActuatorEffectiveness
 {
 public:
@@ -61,9 +64,12 @@ public:
 	const char *name() const override { return "Devel"; }
 
 private:
-	float _tilt_base{math::radians(15.0f)}; ///< base position of the front rotors, 0 - directly up, pi/2 - directly forward
+	float _tilt_base{math::radians(0.0f)}; ///< base position of the front rotors, 0 - directly up, pi/2 - directly forward
 	matrix::Vector3f _tilt_axis{0.0f, -1.0f, 0.0f}; ///< axis of front rotors tilt
+
+	uORB::SubscriptionData<tilt_forward_s> _tilt_forward_sub{ORB_ID(tilt_forward)};
 
 	static constexpr float _min_tilt_angle{math::radians(-10.0f)}; ///< minimum tilt angle for the front rotors, in radians
 	static constexpr float _max_tilt_angle{math::radians(90.0f)}; ///< maximum tilt angle for the front rotors, in radians
+	static constexpr float _tilt_base_deadzone{math::radians(3.0f)}; ///< deadzone for tilt base updates, in radians
 };
