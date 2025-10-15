@@ -70,6 +70,6 @@ private:
 	uORB::SubscriptionData<tilt_forward_s> _tilt_forward_sub{ORB_ID(tilt_forward)};
 
 	static constexpr float _min_tilt_angle{math::radians(-20.0f)}; ///< minimum tilt angle for the front rotors, in radians
-	static constexpr float _max_tilt_angle{math::radians(60.0f)}; ///< maximum tilt angle for the front rotors, in radians
+	static constexpr float _max_tilt_angle{math::radians(75.0f)}; ///< maximum tilt angle for the front rotors, in radians
 	static constexpr float _tilt_base_deadzone{math::radians(2.0f)}; ///< deadzone for tilt base updates, in radians
 };
